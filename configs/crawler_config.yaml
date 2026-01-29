@@ -1,0 +1,34 @@
+# Crawler Configuration
+
+crawler:
+  max_pages: 200  # Pages per episode (student budget)
+  delay: 1.0  # Politeness delay (seconds)
+  timeout: 10  # Request timeout (seconds)
+  max_candidates: 50  # Max links to consider per page
+
+gnn:
+  input_dim: 174
+  hidden_dim: 128
+  output_dim: 64
+  num_layers: 2
+  dropout: 0.3
+  
+qlearning:
+  state_dim: 69
+  action_dim: 2
+  hidden_dim: 64
+  learning_rate: 0.001
+  gamma: 0.95
+  epsilon: 0.1
+  epsilon_decay: 0.995
+  
+bandit:
+  context_dim: 174
+  alpha: 1.0  # Exploration parameter
+  ridge_lambda: 0.1
+
+training:
+  num_episodes: 500  # Student budget version
+  bootstrap_pages: 500
+  checkpoint_every: 50
+  random_seed: 42

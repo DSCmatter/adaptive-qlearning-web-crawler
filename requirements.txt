@@ -1,0 +1,32 @@
+# Adaptive Q-Learning Web Crawler - Dependencies
+# Student-Budget Version: CPU-only, lightweight (~2GB)
+
+# Core ML/DL
+torch
+torch-geometric
+
+# Scientific Computing
+numpy
+pandas
+scipy
+scikit-learn
+
+# Web Crawling
+requests
+beautifulsoup4
+lxml
+
+# Graph Processing
+networkx
+
+# Visualization (optional)
+matplotlib
+seaborn
+
+# Testing
+pytest
+pytest-cov
+
+# Utilities
+pyyaml
+tqdm

@@ -1,0 +1,23 @@
+{
+  "topic": "machine_learning",
+  "description": "Machine Learning and AI related pages",
+  "seeds": [
+    "https://en.wikipedia.org/wiki/Machine_learning",
+    "https://en.wikipedia.org/wiki/Artificial_intelligence",
+    "https://en.wikipedia.org/wiki/Deep_learning",
+    "https://en.wikipedia.org/wiki/Neural_network",
+    "https://en.wikipedia.org/wiki/Supervised_learning"
+  ],
+  "keywords": [
+    "machine learning",
+    "artificial intelligence",
+    "neural network",
+    "deep learning",
+    "supervised learning",
+    "unsupervised learning",
+    "reinforcement learning",
+    "data science",
+    "algorithm",
+    "model training"
+  ]
+}
