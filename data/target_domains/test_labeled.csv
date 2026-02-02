@@ -1,0 +1,10 @@
+url,label,topic,confidence,notes
+https://en.wikipedia.org/wiki/Help:Introduction,0,,high,Auto-labeled
+https://en.wikipedia.org/wiki/Sustainability,1,climate_science,low,Auto-labeled
+https://en.wikipedia.org/wiki/Bitcoin,1,blockchain,low,Auto-labeled
+https://en.wikipedia.org/wiki/Deep_learning,1,machine_learning,low,Auto-labeled
+https://en.wikipedia.org/wiki/Help:Contents,0,,high,Auto-labeled
+https://en.wikipedia.org/wiki/Wikipedia:Contact_us#bodyContent,0,,low,Auto-labeled
+https://en.wikipedia.org/wiki/Wikipedia:About#bodyContent,0,,low,Auto-labeled
+https://en.wikipedia.org/wiki/Supervised_learning,1,machine_learning,low,Auto-labeled
+https://en.wikipedia.org/wiki/Portal:Current_events,0,,high,Auto-labeled

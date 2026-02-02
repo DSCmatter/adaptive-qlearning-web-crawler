@@ -1,0 +1,28 @@
+{
+  "topic": "blockchain",
+  "description": "Blockchain technology, cryptocurrency, and distributed systems",
+  "seeds": [
+    "https://en.wikipedia.org/wiki/Blockchain",
+    "https://en.wikipedia.org/wiki/Bitcoin",
+    "https://en.wikipedia.org/wiki/Ethereum",
+    "https://en.wikipedia.org/wiki/Cryptocurrency",
+    "https://en.wikipedia.org/wiki/Smart_contract",
+    "https://en.wikipedia.org/wiki/Distributed_ledger",
+    "https://en.wikipedia.org/wiki/Proof_of_work",
+    "https://en.wikipedia.org/wiki/Decentralized_finance"
+  ],
+  "keywords": [
+    "blockchain",
+    "cryptocurrency",
+    "bitcoin",
+    "ethereum",
+    "smart contract",
+    "distributed ledger",
+    "decentralized",
+    "proof of work",
+    "proof of stake",
+    "consensus algorithm",
+    "cryptography",
+    "web3"
+  ]
+}

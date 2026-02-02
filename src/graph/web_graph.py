@@ -1,6 +1,8 @@
 """Web graph data structure"""
 
 import networkx as nx
+import pickle
+from pathlib import Path
 from typing import Dict, List, Optional
 
 
@@ -77,3 +79,27 @@ class WebGraph:
     def get_label(self, url: str) -> Optional[int]:
         """Get relevance label for training"""
         return self.node_labels.get(url)
+    
+    def save(self, filepath: Path):
+        """Save graph to file"""
+        filepath = Path(filepath)
+        data = {
+            'graph': self.graph,
+            'node_features': self.node_features,
+            'node_labels': self.node_labels
+        }
+        with open(filepath, 'wb') as f:
+            pickle.dump(data, f)
+    
+    @classmethod
+    def load(cls, filepath: Path) -> 'WebGraph':
+        """Load graph from file"""
+        filepath = Path(filepath)
+        with open(filepath, 'rb') as f:
+            data = pickle.load(f)
+        
+        graph = cls()
+        graph.graph = data['graph']
+        graph.node_features = data['node_features']
+        graph.node_labels = data['node_labels']
+        return graph

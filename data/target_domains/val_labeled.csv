@@ -1,0 +1,10 @@
+url,label,topic,confidence,notes
+https://en.wikipedia.org/wiki/Proof_of_work,1,blockchain,low,Auto-labeled
+https://en.wikipedia.org/wiki/Bitcoin#bodyContent,1,blockchain,low,Auto-labeled
+https://en.wikipedia.org/wiki/Cryptocurrency,1,blockchain,medium,Auto-labeled
+https://en.wikipedia.org/wiki/Main_Page,0,,high,Auto-labeled
+https://en.wikipedia.org/wiki/Wikipedia:Contents,0,,high,Auto-labeled
+https://en.wikipedia.org/wiki/Wikipedia:Community_portal,0,,low,Auto-labeled
+https://en.wikipedia.org/wiki/Machine_learning,1,machine_learning,low,Auto-labeled
+https://en.wikipedia.org/wiki/Wikipedia:Contact_us,0,,low,Auto-labeled
+https://en.wikipedia.org/wiki/Main_Page#bodyContent,0,,high,Auto-labeled

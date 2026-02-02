@@ -1,0 +1,28 @@
+{
+  "topic": "climate_science",
+  "description": "Climate science, environmental issues, and sustainability",
+  "seeds": [
+    "https://en.wikipedia.org/wiki/Climate_change",
+    "https://en.wikipedia.org/wiki/Global_warming",
+    "https://en.wikipedia.org/wiki/Greenhouse_gas",
+    "https://en.wikipedia.org/wiki/Carbon_footprint",
+    "https://en.wikipedia.org/wiki/Renewable_energy",
+    "https://en.wikipedia.org/wiki/Sustainability",
+    "https://en.wikipedia.org/wiki/Paris_Agreement",
+    "https://en.wikipedia.org/wiki/Intergovernmental_Panel_on_Climate_Change"
+  ],
+  "keywords": [
+    "climate change",
+    "global warming",
+    "greenhouse gas",
+    "carbon emissions",
+    "renewable energy",
+    "sustainability",
+    "environmental science",
+    "climate policy",
+    "carbon neutral",
+    "climate action",
+    "fossil fuels",
+    "clean energy"
+  ]
+}
