@@ -25,10 +25,34 @@ This project addresses limitations in existing RL-based crawlers by:
 
 ## Documentation
 
+### Quick Start Guides
 - **[STUDENT_BUDGET_GUIDE.md](docs/STUDENT_BUDGET_GUIDE.md)** - **START HERE!** Student-friendly quick start guide
 - **[WALKTHROUGH.md](docs/WALKTHROUGH.md)** - Complete implementation guide (9.5-week timeline, optimized for students)
-- **[DESIGN.md](docs/DESIGN.md)** - Technical design document with architecture and algorithms
 - **[PRACTICAL_GUIDE.md](docs/PRACTICAL_GUIDE.md)** - Simplified architecture and steps (recommended to get your way around)
+
+### Technical Documentation
+- **[DESIGN.md](docs/DESIGN.md)** - Technical design document with architecture and algorithms
+
+### Phase-by-Phase Implementation Docs
+Detailed documentation for each completed phase with step-by-step instructions:
+
+- **[Phase 1: Project Setup](docs/phases/PHASE_1.md)** ✅ Complete
+  - Environment setup, dependencies, project structure
+  - Core component skeletons (GNN, Bandit, Q-learning)
+  - Testing & validation (38% baseline harvest rate)
+  
+- **[Phase 2: Data Collection & Preprocessing](docs/phases/PHASE_2.md)** ✅ Complete
+  - Seed URL collection (3 topics: ML, Climate, Blockchain)
+  - Bootstrap graph crawling (60 nodes, 600 edges)
+  - Feature extraction pipeline (174-dim context vectors)
+  - Labeled training data (42 train / 9 val / 9 test)
+
+- **[Phase 3: GNN Pre-training](docs/phases/PHASE_3.md)** 🔄 Coming next
+  - GraphSAGE implementation and training
+  - Supervised learning on labeled data
+  - Model evaluation and freezing
+
+📖 **[View All Phases](docs/phases/README.md)** - Complete phase index with run commands
 
 ## Student-Friendly Features
 
