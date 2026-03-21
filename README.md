@@ -47,15 +47,17 @@ Detailed documentation for each completed phase with step-by-step instructions:
   - Feature extraction pipeline (174-dim context vectors)
   - Labeled training data (42 train / 9 val / 9 test)
 
-- **[Phase 3: GNN Pre-training](docs/phases/PHASE_3.md)** 🔄 Coming next
-  - GraphSAGE implementation and training
-  - Supervised learning on labeled data
-  - Model evaluation and freezing
+- **[Phase 3: GNN Pre-training](docs/phases/PHASE_3.md)** ✅ Complete
+  - Node feature integration
+  - SAGEConv structural embeddings
+  - Offline pre-training and freezing validation
 
-📖 **[View All Phases](docs/phases/README.md)** - Complete phase index with run commands
+- **[Phase 4: Q-Learning Integration](docs/phases/PHASE_4.md)** ✅ Complete
+  - Offline simulation environment setup
+  - Joint Q-Network and LinUCB Bandit optimization
+  - High coverage metric evaluation testing
 
-## Student-Friendly Features
-
+- **[Phase 5: Hybrid System Integration](docs/phases/README.md)** 🔄 Coming next
 This project is optimized for broke students:
 - **$0.10 Total Cost** (just electricity)
 - **No GPU Required** (CPU-only works great)
