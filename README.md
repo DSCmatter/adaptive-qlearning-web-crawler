@@ -57,7 +57,12 @@ Detailed documentation for each completed phase with step-by-step instructions:
   - Joint Q-Network and LinUCB Bandit optimization
   - High coverage metric evaluation testing
 
-- **[Phase 5: Hybrid System Integration](docs/phases/README.md)** 🔄 Coming next
+- **[Phase 5: Hybrid System Integration](docs/phases/PHASE_5.md)** ✅ Complete
+  - Integration of Q-Agent, LinUCB, and frozen GraphSAGE.
+  - Live HTTP web crawling tests on standard seed targets.
+
+- **[Phase 6: Evaluation & Baselines](docs/phases/README.md)** 🔄 Coming next
+
 This project is optimized for broke students:
 - **$0.10 Total Cost** (just electricity)
 - **No GPU Required** (CPU-only works great)

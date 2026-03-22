@@ -72,12 +72,26 @@ This directory contains detailed documentation for each phase of the Adaptive Q-
 - `experiments/train_agent.py`
 - Trained models `qlearning_agent.pt` and `bandit_arms.pkl`
 
-### 🔄 Phase 5: Hybrid System Integration
-- Combine GNN + Bandit + Q-learning
-- Implement adaptive crawler
-- End-to-end crawling tests
+---
 
-### 📋 Phase 6: Evaluation & Baselines
+### ✅ [Phase 5: Hybrid System Integration](PHASE_5.md)
+**Timeline**: Week 6
+**Status**: Complete
+
+**Summary**:
+- Combine GNN + Bandit + Q-learning synchronously.
+- Implement Adaptive Crawler managing complete HTTP cycles directly.
+- Full end-to-end crawling test against Wikipedia `Machine Learning` Seeds scaling effectively.
+
+**Key Deliverables**:
+- `src/crawler/adaptive_crawler.py`
+- `experiments/run_hybrid_crawler.py`
+
+---
+
+## In Progress
+
+### 🔄 Phase 6: Evaluation & Baselines
 - Compare against heuristic crawlers
 - Measure harvest rate, precision, coverage
 - Ablation studies
@@ -97,8 +111,8 @@ This directory contains detailed documentation for each phase of the Adaptive Q-
 | Phase 2 | ✅ Complete | [PHASE_2.md](PHASE_2.md) | `bootstrap_graph.py`, `auto_label_urls.py`, `test_features.py` |
 | Phase 3 | ✅ Complete | [PHASE_3.md](PHASE_3.md) | `train_gnn.py` |
 | Phase 4 | ✅ Complete | [PHASE_4.md](PHASE_4.md) | `train_agent.py` |
-| Phase 5 | 🔄 In Progress | - | `adaptive_crawler.py` |
-| Phase 6 | 📋 Planned | - | `evaluate_baseline.py`, `compare_methods.py` |
+| Phase 5 | ✅ Complete | [PHASE_5.md](PHASE_5.md) | `run_hybrid_crawler.py` |
+| Phase 6 | 🔄 In Progress | - | `evaluate_baseline.py` |
 | Phase 7 | 📋 Planned | - | Final deployment scripts |
 
 ---

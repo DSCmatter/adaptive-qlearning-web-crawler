@@ -11,7 +11,7 @@ def add_md_to_doc(doc, md_filepath):
         print(f"File not found: {md_filepath}")
 
 def generate_reports():
-    phases = [1, 2, 3, 4]
+    phases = [1, 2, 3, 4, 5]
     reports_dir = 'docs/reports'
     os.makedirs(reports_dir, exist_ok=True)
     
