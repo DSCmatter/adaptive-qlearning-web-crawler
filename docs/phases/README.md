@@ -56,8 +56,6 @@ This directory contains detailed documentation for each phase of the Adaptive Q-
 
 ---
 
-## In Progress
-
 ### ✅ [Phase 4: Q-Learning Agent Training](PHASE_4.md)
 **Timeline**: Week 4-5
 **Status**: Complete
@@ -89,12 +87,18 @@ This directory contains detailed documentation for each phase of the Adaptive Q-
 
 ---
 
-## In Progress
+### ✅ [Phase 6: Evaluation & Baselines](PHASE_6.md)
+**Timeline**: Week 7-8
+**Status**: Complete
 
-### 🔄 Phase 6: Evaluation & Baselines
-- Compare against heuristic crawlers
-- Measure harvest rate, precision, coverage
-- Ablation studies
+**Summary**:
+- Implemented baseline crawlers and a reusable evaluation harness.
+- Added strict topic-aware relevance scoring for live benchmarking.
+- Established a discriminative benchmark across 3 domains and 7 crawler variants.
+
+**Key Deliverables**:
+- `experiments/evaluate_baseline.py`
+- `data/results/PHASE_6_RESULTS.md`
 
 ### 📋 Phase 7: Optimization & Deployment
 - Hyperparameter tuning
@@ -112,7 +116,7 @@ This directory contains detailed documentation for each phase of the Adaptive Q-
 | Phase 3 | ✅ Complete | [PHASE_3.md](PHASE_3.md) | `train_gnn.py` |
 | Phase 4 | ✅ Complete | [PHASE_4.md](PHASE_4.md) | `train_agent.py` |
 | Phase 5 | ✅ Complete | [PHASE_5.md](PHASE_5.md) | `run_hybrid_crawler.py` |
-| Phase 6 | 🔄 In Progress | - | `evaluate_baseline.py` |
+| Phase 6 | ✅ Complete | [PHASE_6.md](PHASE_6.md) | `evaluate_baseline.py` |
 | Phase 7 | 📋 Planned | - | Final deployment scripts |
 
 ---

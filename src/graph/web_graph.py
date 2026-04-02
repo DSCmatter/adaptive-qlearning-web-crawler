@@ -34,6 +34,9 @@ class WebGraph:
         
         if label is not None:
             self.node_labels[url] = label
+
+        if hasattr(self, '_pagerank'):
+            delattr(self, '_pagerank')
     
     def add_link(self, from_url: str, to_url: str, anchor_text: str = ""):
         """
@@ -45,6 +48,9 @@ class WebGraph:
             anchor_text: Link anchor text
         """
         self.graph.add_edge(from_url, to_url, anchor_text=anchor_text)
+
+        if hasattr(self, '_pagerank'):
+            delattr(self, '_pagerank')
     
     def get_neighbors(self, url: str) -> List[str]:
         """Get outgoing links from a page"""

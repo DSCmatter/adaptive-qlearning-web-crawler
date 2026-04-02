@@ -6,8 +6,14 @@ import numpy as np
 from typing import Optional, Dict
 
 from .base_crawler import BaseCrawler
-from environment.reward_function import RewardFunction
-from graph.web_graph import WebGraph
+try:
+    from environment.reward_function import RewardFunction
+    from graph.web_graph import WebGraph
+    from utils.metrics import precision_at_k
+except ImportError:  # pragma: no cover - fallback for package-style imports
+    from src.environment.reward_function import RewardFunction
+    from src.graph.web_graph import WebGraph
+    from src.utils.metrics import precision_at_k
 
 
 class AdaptiveCrawler(BaseCrawler):
@@ -24,6 +30,7 @@ class AdaptiveCrawler(BaseCrawler):
         qlearning_agent=None,
         bandit=None,
         feature_extractor=None,
+        relevance_fn=None,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -31,15 +38,21 @@ class AdaptiveCrawler(BaseCrawler):
         self.qlearning_agent = qlearning_agent
         self.bandit = bandit
         self.feature_extractor = feature_extractor
+        self.relevance_fn = relevance_fn
         self.reward_fn = RewardFunction()
         
         # Runtime variables
         self.web_graph = WebGraph()
         self.relevant_pages_found = 0
         self.total_reward = 0.0
+        self.page_history = []
+        self.trace = []
 
     def _simulate_relevance(self, url: str, html: str) -> bool:
         """Heuristic relevance for real-world Phase 5 crawl testing"""
+        if self.relevance_fn is not None:
+            return bool(self.relevance_fn(url, html))
+
         # Could use proper NLP model, for student budget, keyword matches suffice inside the text/url
         keywords = ['machine', 'learning', 'artificial', 'intelligence', 'neural', 'network', 'deep', 'data', 'science', 'model', 'climate', 'blockchain', 'crypto']
         text = (url + " " + (html or "")).lower()
@@ -81,6 +94,26 @@ class AdaptiveCrawler(BaseCrawler):
         state[68] = metrics['exploration_rate']
         return state
 
+    def _build_candidate_context(self, url: str, frontier_meta: Dict[str, Dict[str, str]]) -> np.ndarray:
+        """Build a richer bandit context for an unfetched candidate link."""
+        if not self.feature_extractor:
+            return np.zeros(174)
+
+        metadata = frontier_meta.get(url, {})
+        anchor_text = metadata.get('anchor_text', '')
+        # For online link selection we do not know the target HTML yet, so we
+        # reuse a bounded slice of the source page as topical context.
+        source_html = metadata.get('source_html', '')
+        gnn_embedding = self._get_gnn_embedding(url) if self.gnn_encoder else np.zeros(64)
+
+        return self.feature_extractor.build_context_vector(
+            url=url,
+            html=source_html[:2000],
+            anchor_text=anchor_text,
+            gnn_embedding=gnn_embedding,
+            graph=self.web_graph,
+        )
+
     def crawl(self, seed_url: str) -> dict:
         """Main adaptive crawl loop"""
         print(f"Starting adaptive crawl from {seed_url}")
@@ -90,8 +123,14 @@ class AdaptiveCrawler(BaseCrawler):
         self.web_graph = WebGraph()
         self.relevant_pages_found = 0
         self.total_reward = 0.0
+        self.page_history = []
+        self.trace = []
         frontier = [seed_url]
         current_url = seed_url
+        frontier_meta = {
+            seed_url: {'anchor_text': '', 'source_url': ''}
+        }
+        crawl_start = time.time()
         
         # Crawl loop
         while len(self.visited) < self.max_pages and frontier:
@@ -108,7 +147,9 @@ class AdaptiveCrawler(BaseCrawler):
                 action = 1
                 
             # Filter and bound candidates (max 50 candidates directly bounding search space)
-            candidates = list(set([u for u in frontier if u not in self.visited]))[:50]
+            candidates = list(dict.fromkeys(
+                u for u in frontier if u not in self.visited
+            ))[:self.max_candidates]
             if not candidates:
                 print("No valid candidates left.")
                 break
@@ -117,16 +158,17 @@ class AdaptiveCrawler(BaseCrawler):
             if self.bandit and len(candidates) > 1 and self.feature_extractor:
                 contexts = []
                 for link in candidates:
-                    vec = self.feature_extractor.build_context_vector(link, "", "", np.zeros(64), self.web_graph)
+                    vec = self._build_candidate_context(link, frontier_meta)
                     contexts.append(vec)
                 best_link, best_idx = self.bandit.select_link(candidates, contexts)
                 context_used = contexts[best_idx]
             else:
                 best_link = candidates[0]
-                context_used = self.feature_extractor.build_context_vector(best_link, "", "", np.zeros(64), self.web_graph) if self.feature_extractor else np.zeros(174)
+                context_used = self._build_candidate_context(best_link, frontier_meta)
 
             # Execution
             frontier.remove(best_link)
+            metadata = frontier_meta.pop(best_link, {'anchor_text': '', 'source_url': ''})
             self.visited.add(best_link)
             current_url = best_link
             
@@ -140,13 +182,20 @@ class AdaptiveCrawler(BaseCrawler):
                 is_rel = self._simulate_relevance(best_link, html)
                 if is_rel:
                     self.relevant_pages_found += 1
+                self.web_graph.add_page(best_link, html=html, label=int(is_rel))
                 
                 # Extract links on page naturally updating Web Graph nodes/edges
-                new_links = self.extract_links(html, best_link)
+                new_links = self.extract_link_candidates(html, best_link)
                 for link in new_links:
-                    self.web_graph.add_link(best_link, link)
-                    if link not in self.visited:
-                        frontier.append(link)
+                    child_url = link['url']
+                    self.web_graph.add_link(best_link, child_url, link['anchor_text'])
+                    if child_url not in self.visited and child_url not in frontier:
+                        frontier.append(child_url)
+                        frontier_meta[child_url] = {
+                            'anchor_text': link['anchor_text'],
+                            'source_url': best_link,
+                            'source_html': html[:4000],
+                        }
 
             # 3. Environment Step Reward 
             reward = self.reward_fn.compute_reward(
@@ -158,6 +207,14 @@ class AdaptiveCrawler(BaseCrawler):
                 is_duplicate=False  # Handled earlier
             )
             self.total_reward += reward
+            self.page_history.append(is_rel)
+            self.trace.append({
+                'url': best_link,
+                'is_relevant': is_rel,
+                'reward': reward,
+                'source_url': metadata.get('source_url', ''),
+                'anchor_text': metadata.get('anchor_text', ''),
+            })
 
             # 4. Updates (Bandit Matrix & Q-Network iterations)
             if self.bandit and self.feature_extractor:
@@ -168,9 +225,17 @@ class AdaptiveCrawler(BaseCrawler):
                 self.qlearning_agent.update(q_state, action, reward, next_q_state, done=False)
 
         print(f"\\nCrawl complete. Visited {len(self.visited)} pages. Relevant targets mapped: {self.relevant_pages_found}")
+        crawl_time = time.time() - crawl_start
+        total_crawled = len(self.visited)
         return {
-            "total_crawled": len(self.visited),
+            "total_crawled": total_crawled,
             "relevant_found": self.relevant_pages_found,
-            "harvest_rate": (self.relevant_pages_found / max(1, len(self.visited))),
-            "total_reward": self.total_reward
+            "harvest_rate": (self.relevant_pages_found / max(1, total_crawled)),
+            "precision_at_10": precision_at_k(self.page_history, min(10, total_crawled)),
+            "precision_at_20": precision_at_k(self.page_history, min(20, total_crawled)),
+            "total_reward": self.total_reward,
+            "avg_reward": self.total_reward / max(1, total_crawled),
+            "crawl_time": crawl_time,
+            "page_history": list(self.page_history),
+            "trace": list(self.trace),
         }

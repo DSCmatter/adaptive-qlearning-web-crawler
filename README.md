@@ -61,7 +61,8 @@ Detailed documentation for each completed phase with step-by-step instructions:
   - Integration of Q-Agent, LinUCB, and frozen GraphSAGE.
   - Live HTTP web crawling tests on standard seed targets.
 
-- **[Phase 6: Evaluation & Baselines](docs/phases/README.md)** 🔄 Coming next
+- **[Phase 6: Evaluation & Baselines](docs/phases/PHASE_6.md)** ✅ Complete
+  - Baseline comparisons and strict topic-aware evaluation across 3 domains
 
 This project is optimized for broke students:
 - **$0.10 Total Cost** (just electricity)

@@ -177,3 +177,7 @@ pyrightconfig.json
 docs/reports/
 
 /data/models
+
+/data/graphs
+
+/data/phase6_run
