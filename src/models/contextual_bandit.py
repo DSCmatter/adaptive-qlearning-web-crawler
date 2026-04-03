@@ -24,6 +24,30 @@ class LinUCBBandit:
         
         # Regularization for numerical stability
         self.ridge_lambda = 0.1
+
+    def _score_link(self, link: str, context: np.ndarray) -> float:
+        """Compute UCB score for a single candidate link."""
+        if link not in self.arms:
+            self.arms[link] = (
+                np.eye(self.context_dim) * self.ridge_lambda,
+                np.zeros(self.context_dim)
+            )
+
+        A, b = self.arms[link]
+
+        try:
+            A_inv = np.linalg.inv(A)
+            theta = A_inv @ b
+            expected_reward = context @ theta
+            uncertainty = np.sqrt(context @ A_inv @ context)
+            return float(expected_reward + self.alpha * uncertainty)
+        except np.linalg.LinAlgError:
+            # Fall back to optimistic exploration when matrix inversion fails.
+            return 999.0
+
+    def score_candidates(self, candidate_links: List[str], contexts: List[np.ndarray]) -> List[float]:
+        """Score every candidate link using current UCB parameters."""
+        return [self._score_link(link, context) for link, context in zip(candidate_links, contexts)]
     
     def select_link(self, candidate_links: List[str], contexts: List[np.ndarray]) -> Tuple[str, int]:
         """
@@ -36,33 +60,7 @@ class LinUCBBandit:
         Returns:
             (selected_link, index)
         """
-        ucb_scores = []
-        
-        for link, context in zip(candidate_links, contexts):
-            # Initialize arm if new
-            if link not in self.arms:
-                self.arms[link] = (
-                    np.eye(self.context_dim) * self.ridge_lambda,  # A with ridge
-                    np.zeros(self.context_dim)  # b
-                )
-            
-            A, b = self.arms[link]
-            
-            # Solve for theta
-            try:
-                A_inv = np.linalg.inv(A)
-                theta = A_inv @ b
-                
-                # UCB score: exploitation + exploration
-                expected_reward = context @ theta
-                uncertainty = np.sqrt(context @ A_inv @ context)
-                ucb_score = expected_reward + self.alpha * uncertainty
-                
-            except np.linalg.LinAlgError:
-                # Fallback: exploration bonus for unstable matrix
-                ucb_score = 999.0
-            
-            ucb_scores.append(ucb_score)
+        ucb_scores = self.score_candidates(candidate_links, contexts)
         
         best_idx = np.argmax(ucb_scores)
         return candidate_links[best_idx], best_idx

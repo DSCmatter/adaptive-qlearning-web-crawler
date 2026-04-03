@@ -155,3 +155,47 @@ def test_crawler_evaluator_aggregates_summary_metrics():
     assert set(report['summary']) == {'best_first', 'random'}
     assert report['summary']['best_first']['harvest_rate']['mean'] == 0.5
     assert report['summary']['best_first']['precision_at_10']['mean'] == 0.5
+
+
+def test_crawler_evaluator_can_include_run_details():
+    evaluator = CrawlerEvaluator(
+        crawler_specs=[
+            CrawlerSpec(
+                name='best_first',
+                factory=lambda: BestFirstCrawler(
+                    max_pages=2,
+                    fetch_callback=fake_fetch,
+                    relevance_fn=relevance_fn,
+                ),
+            ),
+        ],
+        seed_urls=[SEED_URL],
+        runs_per_seed=1,
+        include_run_details=True,
+    )
+
+    report = evaluator.evaluate()
+
+    assert 'run_details' in report
+    assert len(report['run_details']) == 1
+    detail = report['run_details'][0]
+    assert detail['crawler_name'] == 'best_first'
+    assert detail['seed_url'] == SEED_URL
+    assert isinstance(detail['trace'], list)
+
+
+def test_adaptive_crawler_emits_diagnostics_when_enabled():
+    crawler = AdaptiveCrawler(
+        max_pages=2,
+        fetch_callback=fake_fetch,
+        relevance_fn=relevance_fn,
+        enable_diagnostics=True,
+        online_updates=False,
+    )
+
+    result = crawler.crawl(SEED_URL)
+
+    assert 'diagnostics' in result
+    assert len(result['diagnostics']) == 2
+    assert result['trace'][0]['selection_mode'] == 'frontier_order'
+    assert result['trace'][0]['candidate_count'] == 1

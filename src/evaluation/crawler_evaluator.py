@@ -5,7 +5,7 @@ import inspect
 from pathlib import Path
 import json
 import statistics
-from typing import Callable, Dict, Iterable, List, Sequence
+from typing import Callable, Dict, Iterable, List, Optional, Sequence
 
 try:
     from utils.metrics import precision_at_k
@@ -45,11 +45,15 @@ class CrawlerEvaluator:
         self,
         crawler_specs: Sequence[CrawlerSpec],
         seed_urls: Sequence[str],
-        runs_per_seed: int = 1
+        runs_per_seed: int = 1,
+        before_run: Optional[Callable[[str, str, int], None]] = None,
+        include_run_details: bool = False,
     ):
         self.crawler_specs = list(crawler_specs)
         self.seed_urls = list(seed_urls)
         self.runs_per_seed = runs_per_seed
+        self.before_run = before_run
+        self.include_run_details = include_run_details
 
     def _normalize_result(
         self,
@@ -119,10 +123,13 @@ class CrawlerEvaluator:
     def evaluate(self) -> Dict[str, object]:
         """Run every crawler over every configured seed."""
         runs: List[CrawlerRunResult] = []
+        run_details: List[Dict[str, object]] = []
 
         for spec in self.crawler_specs:
             for seed_url in self.seed_urls:
                 for run_index in range(self.runs_per_seed):
+                    if self.before_run is not None:
+                        self.before_run(spec.name, seed_url, run_index)
                     crawler = self._build_crawler(spec, seed_url)
                     raw_result = crawler.crawl(seed_url)
                     runs.append(
@@ -134,11 +141,25 @@ class CrawlerEvaluator:
                         )
                     )
 
+                    if self.include_run_details:
+                        run_details.append({
+                            'crawler_name': spec.name,
+                            'seed_url': seed_url,
+                            'run_index': run_index,
+                            'trace': list(raw_result.get('trace', [])),
+                            'diagnostics': list(raw_result.get('diagnostics', [])),
+                            'page_history': list(raw_result.get('page_history', [])),
+                        })
+
         summary = self._build_summary(runs)
-        return {
+        report = {
             'runs': [asdict(run) for run in runs],
             'summary': summary,
         }
+        if self.include_run_details:
+            report['run_details'] = run_details
+
+        return report
 
     def _build_summary(self, runs: Sequence[CrawlerRunResult]) -> Dict[str, Dict[str, Dict[str, float]]]:
         grouped: Dict[str, List[CrawlerRunResult]] = {}
@@ -179,7 +200,7 @@ class CrawlerEvaluator:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         lines = [
-            '# Phase 6 Evaluation Summary',
+            '# Crawler Evaluation Summary',
             '',
             '| Crawler | Harvest Rate | P@10 | P@20 | Avg Reward | Crawl Time (s) |',
             '| --- | --- | --- | --- | --- | --- |',

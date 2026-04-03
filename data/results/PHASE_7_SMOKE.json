@@ -1,0 +1,79 @@
+{
+  "runs": [
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Blockchain",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 3.245037317276001,
+      "total_reward": 11.614898443222046,
+      "avg_reward": 11.614898443222046
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Climate_change",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.694592237472534,
+      "total_reward": 11.719447422027589,
+      "avg_reward": 11.719447422027589
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Machine_learning",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.2173805236816406,
+      "total_reward": 11.725173091888427,
+      "avg_reward": 11.725173091888427
+    }
+  ],
+  "summary": {
+    "pure_q": {
+      "harvest_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "precision_at_10": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "precision_at_20": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "crawl_time": {
+        "mean": 2.719003359476725,
+        "std": 0.5142631121452209
+      },
+      "total_reward": {
+        "mean": 11.686506319046021,
+        "std": 0.062080284582588435
+      },
+      "avg_reward": {
+        "mean": 11.686506319046021,
+        "std": 0.062080284582588435
+      },
+      "total_crawled": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "relevant_found": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    }
+  }
+}

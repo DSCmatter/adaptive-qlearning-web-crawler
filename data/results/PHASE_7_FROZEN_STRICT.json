@@ -1,0 +1,576 @@
+{
+  "runs": [
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Blockchain",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.050227642059326,
+      "total_reward": 11.730846762657166,
+      "avg_reward": 11.730846762657166
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Blockchain",
+      "run_index": 1,
+      "total_crawled": 2,
+      "relevant_found": 1,
+      "harvest_rate": 0.5,
+      "precision_at_10": 0.5,
+      "precision_at_20": 0.5,
+      "crawl_time": 3.3028969764709473,
+      "total_reward": 11.41869900226593,
+      "avg_reward": 5.709349501132965
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Bitcoin",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.3017020225524902,
+      "total_reward": 11.73304970264435,
+      "avg_reward": 11.73304970264435
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Bitcoin",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.2344603538513184,
+      "total_reward": 11.714591479301452,
+      "avg_reward": 11.714591479301452
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Climate_change",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 3.338777780532837,
+      "total_reward": 11.69895613193512,
+      "avg_reward": 11.69895613193512
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Climate_change",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 3.426264524459839,
+      "total_reward": 11.710985779762268,
+      "avg_reward": 11.710985779762268
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Global_warming",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 3.8227696418762207,
+      "total_reward": 11.708026576042176,
+      "avg_reward": 11.708026576042176
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Global_warming",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 3.566378593444824,
+      "total_reward": 11.711930823326112,
+      "avg_reward": 11.711930823326112
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Machine_learning",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.6542701721191406,
+      "total_reward": 11.728068614006043,
+      "avg_reward": 11.728068614006043
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Machine_learning",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.599944829940796,
+      "total_reward": 11.705452108383179,
+      "avg_reward": 11.705452108383179
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 3.7273125648498535,
+      "total_reward": 11.705840563774109,
+      "avg_reward": 11.705840563774109
+    },
+    {
+      "crawler_name": "pure_q",
+      "seed_url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.688375234603882,
+      "total_reward": 11.720452880859375,
+      "avg_reward": 11.720452880859375
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Blockchain",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.9000091552734375,
+      "total_reward": 11.645755124092103,
+      "avg_reward": 11.645755124092103
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Blockchain",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.201270341873169,
+      "total_reward": 11.726505637168884,
+      "avg_reward": 11.726505637168884
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Bitcoin",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.182788848876953,
+      "total_reward": 11.727104377746583,
+      "avg_reward": 11.727104377746583
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Bitcoin",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.1699745655059814,
+      "total_reward": 11.729264616966248,
+      "avg_reward": 11.729264616966248
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Climate_change",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 3.838278293609619,
+      "total_reward": 11.595302152633668,
+      "avg_reward": 11.595302152633668
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Climate_change",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.7336013317108154,
+      "total_reward": 11.725249862670898,
+      "avg_reward": 11.725249862670898
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Global_warming",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 3.055889844894409,
+      "total_reward": 11.691240310668945,
+      "avg_reward": 11.691240310668945
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Global_warming",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.666731834411621,
+      "total_reward": 11.720502972602844,
+      "avg_reward": 11.720502972602844
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Machine_learning",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.456920862197876,
+      "total_reward": 11.71073455810547,
+      "avg_reward": 11.71073455810547
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Machine_learning",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.312168598175049,
+      "total_reward": 11.715682196617127,
+      "avg_reward": 11.715682196617127
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "run_index": 0,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 3.0345256328582764,
+      "total_reward": 11.702451634407044,
+      "avg_reward": 11.702451634407044
+    },
+    {
+      "crawler_name": "hybrid_no_gnn",
+      "seed_url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "run_index": 1,
+      "total_crawled": 1,
+      "relevant_found": 1,
+      "harvest_rate": 1.0,
+      "precision_at_10": 1.0,
+      "precision_at_20": 1.0,
+      "crawl_time": 2.5714731216430664,
+      "total_reward": 11.725168681144714,
+      "avg_reward": 11.725168681144714
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Blockchain",
+      "run_index": 0,
+      "total_crawled": 10,
+      "relevant_found": 1,
+      "harvest_rate": 0.1,
+      "precision_at_10": 0.1,
+      "precision_at_20": 0.1,
+      "crawl_time": 20.134652614593506,
+      "total_reward": 4.860518956184389,
+      "avg_reward": 0.4860518956184389
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Blockchain",
+      "run_index": 1,
+      "total_crawled": 10,
+      "relevant_found": 1,
+      "harvest_rate": 0.1,
+      "precision_at_10": 0.1,
+      "precision_at_20": 0.1,
+      "crawl_time": 18.753044366836548,
+      "total_reward": 4.896445822715759,
+      "avg_reward": 0.48964458227157587
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Bitcoin",
+      "run_index": 0,
+      "total_crawled": 10,
+      "relevant_found": 1,
+      "harvest_rate": 0.1,
+      "precision_at_10": 0.1,
+      "precision_at_20": 0.1,
+      "crawl_time": 19.39360475540161,
+      "total_reward": 4.838869881629947,
+      "avg_reward": 0.4838869881629947
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Bitcoin",
+      "run_index": 1,
+      "total_crawled": 10,
+      "relevant_found": 1,
+      "harvest_rate": 0.1,
+      "precision_at_10": 0.1,
+      "precision_at_20": 0.1,
+      "crawl_time": 33.790947675704956,
+      "total_reward": 4.857985043525698,
+      "avg_reward": 0.48579850435256977
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Climate_change",
+      "run_index": 0,
+      "total_crawled": 10,
+      "relevant_found": 1,
+      "harvest_rate": 0.1,
+      "precision_at_10": 0.1,
+      "precision_at_20": 0.1,
+      "crawl_time": 47.189324378967285,
+      "total_reward": 3.914112424850462,
+      "avg_reward": 0.3914112424850462
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Climate_change",
+      "run_index": 1,
+      "total_crawled": 7,
+      "relevant_found": 1,
+      "harvest_rate": 0.14285714285714285,
+      "precision_at_10": 0.14285714285714285,
+      "precision_at_20": 0.14285714285714285,
+      "crawl_time": 24.14512586593628,
+      "total_reward": 7.1370819330215465,
+      "avg_reward": 1.0195831332887924
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Global_warming",
+      "run_index": 0,
+      "total_crawled": 10,
+      "relevant_found": 1,
+      "harvest_rate": 0.1,
+      "precision_at_10": 0.1,
+      "precision_at_20": 0.1,
+      "crawl_time": 45.88910698890686,
+      "total_reward": 2.9970995664596574,
+      "avg_reward": 0.2997099566459657
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Global_warming",
+      "run_index": 1,
+      "total_crawled": 10,
+      "relevant_found": 1,
+      "harvest_rate": 0.1,
+      "precision_at_10": 0.1,
+      "precision_at_20": 0.1,
+      "crawl_time": 37.594014406204224,
+      "total_reward": 3.9368988275527954,
+      "avg_reward": 0.39368988275527955
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Machine_learning",
+      "run_index": 0,
+      "total_crawled": 10,
+      "relevant_found": 1,
+      "harvest_rate": 0.1,
+      "precision_at_10": 0.1,
+      "precision_at_20": 0.1,
+      "crawl_time": 28.8002610206604,
+      "total_reward": 4.816288661956788,
+      "avg_reward": 0.4816288661956788
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Machine_learning",
+      "run_index": 1,
+      "total_crawled": 10,
+      "relevant_found": 1,
+      "harvest_rate": 0.1,
+      "precision_at_10": 0.1,
+      "precision_at_20": 0.1,
+      "crawl_time": 22.75598907470703,
+      "total_reward": 4.8662374258041385,
+      "avg_reward": 0.48662374258041385
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "run_index": 0,
+      "total_crawled": 9,
+      "relevant_found": 1,
+      "harvest_rate": 0.1111111111111111,
+      "precision_at_10": 0.1111111111111111,
+      "precision_at_20": 0.1111111111111111,
+      "crawl_time": 23.050441026687622,
+      "total_reward": 5.7721119880676275,
+      "avg_reward": 0.6413457764519586
+    },
+    {
+      "crawler_name": "hybrid",
+      "seed_url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "run_index": 1,
+      "total_crawled": 4,
+      "relevant_found": 1,
+      "harvest_rate": 0.25,
+      "precision_at_10": 0.25,
+      "precision_at_20": 0.25,
+      "crawl_time": 9.79293704032898,
+      "total_reward": 10.320083332061769,
+      "avg_reward": 2.580020833015442
+    }
+  ],
+  "summary": {
+    "pure_q": {
+      "harvest_rate": {
+        "mean": 0.9583333333333334,
+        "std": 0.14433756729740643
+      },
+      "precision_at_10": {
+        "mean": 0.9583333333333334,
+        "std": 0.14433756729740643
+      },
+      "precision_at_20": {
+        "mean": 0.9583333333333334,
+        "std": 0.14433756729740643
+      },
+      "crawl_time": {
+        "mean": 2.976115028063456,
+        "std": 0.6223498330199037
+      },
+      "total_reward": {
+        "mean": 11.690575035413106,
+        "std": 0.08629735132379952
+      },
+      "avg_reward": {
+        "mean": 11.214795910318692,
+        "std": 1.7337996257646537
+      },
+      "total_crawled": {
+        "mean": 1.0833333333333333,
+        "std": 0.28867513459481287
+      },
+      "relevant_found": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    },
+    "hybrid_no_gnn": {
+      "harvest_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "precision_at_10": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "precision_at_20": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "crawl_time": {
+        "mean": 2.676969369252523,
+        "std": 0.4855458453614362
+      },
+      "total_reward": {
+        "mean": 11.701246843735378,
+        "std": 0.040803741954805114
+      },
+      "avg_reward": {
+        "mean": 11.701246843735378,
+        "std": 0.040803741954805114
+      },
+      "total_crawled": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "relevant_found": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    },
+    "hybrid": {
+      "harvest_rate": {
+        "mean": 0.1169973544973545,
+        "std": 0.0436861438039945
+      },
+      "precision_at_10": {
+        "mean": 0.1169973544973545,
+        "std": 0.0436861438039945
+      },
+      "precision_at_20": {
+        "mean": 0.1169973544973545,
+        "std": 0.0436861438039945
+      },
+      "crawl_time": {
+        "mean": 27.60745410124461,
+        "std": 11.411384724370143
+      },
+      "total_reward": {
+        "mean": 5.267811155319214,
+        "std": 1.8842598484476265
+      },
+      "avg_reward": {
+        "mean": 0.686616283652013,
+        "std": 0.6225324568612868
+      },
+      "total_crawled": {
+        "mean": 9.166666666666666,
+        "std": 1.8504708655481243
+      },
+      "relevant_found": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    }
+  }
+}

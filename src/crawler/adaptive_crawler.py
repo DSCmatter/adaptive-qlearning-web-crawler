@@ -3,7 +3,7 @@
 import time
 import torch
 import numpy as np
-from typing import Optional, Dict
+from typing import Optional, Dict, Any, List
 
 from .base_crawler import BaseCrawler
 try:
@@ -31,6 +31,8 @@ class AdaptiveCrawler(BaseCrawler):
         bandit=None,
         feature_extractor=None,
         relevance_fn=None,
+        enable_diagnostics: bool = False,
+        online_updates: bool = True,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -39,6 +41,8 @@ class AdaptiveCrawler(BaseCrawler):
         self.bandit = bandit
         self.feature_extractor = feature_extractor
         self.relevance_fn = relevance_fn
+        self.enable_diagnostics = enable_diagnostics
+        self.online_updates = online_updates
         self.reward_fn = RewardFunction()
         
         # Runtime variables
@@ -47,6 +51,29 @@ class AdaptiveCrawler(BaseCrawler):
         self.total_reward = 0.0
         self.page_history = []
         self.trace = []
+        self.diagnostics: List[Dict[str, Any]] = []
+
+    def _vector_stats(self, vector: np.ndarray) -> Dict[str, Any]:
+        """Summarize vectors for lightweight debug traces."""
+        if vector is None or len(vector) == 0:
+            return {
+                'size': 0,
+                'norm': 0.0,
+                'mean': 0.0,
+                'min': 0.0,
+                'max': 0.0,
+                'nonzero': 0,
+            }
+
+        vec = np.asarray(vector, dtype=float)
+        return {
+            'size': int(vec.size),
+            'norm': float(np.linalg.norm(vec)),
+            'mean': float(np.mean(vec)),
+            'min': float(np.min(vec)),
+            'max': float(np.max(vec)),
+            'nonzero': int(np.count_nonzero(vec)),
+        }
 
     def _simulate_relevance(self, url: str, html: str) -> bool:
         """Heuristic relevance for real-world Phase 5 crawl testing"""
@@ -125,6 +152,7 @@ class AdaptiveCrawler(BaseCrawler):
         self.total_reward = 0.0
         self.page_history = []
         self.trace = []
+        self.diagnostics = []
         frontier = [seed_url]
         current_url = seed_url
         frontier_meta = {
@@ -135,8 +163,15 @@ class AdaptiveCrawler(BaseCrawler):
         # Crawl loop
         while len(self.visited) < self.max_pages and frontier:
             # 1. State extraction and high-level Q-Learning action
+            q_values: List[float] = []
             if self.qlearning_agent and len(self.visited) > 0:
                 q_state = self._build_q_state(current_url)
+                if self.enable_diagnostics:
+                    with torch.no_grad():
+                        q_tensor = self.qlearning_agent.network(
+                            torch.FloatTensor(q_state).unsqueeze(0)
+                        )[0]
+                        q_values = [float(v) for v in q_tensor.tolist()]
                 action = self.qlearning_agent.get_action(q_state, [0, 1])
                 
                 if action == 0:  # STOP condition learned by Q-Agent
@@ -153,6 +188,9 @@ class AdaptiveCrawler(BaseCrawler):
             if not candidates:
                 print("No valid candidates left.")
                 break
+
+            selection_mode = 'frontier_order'
+            score_summary: Dict[str, float] = {}
                 
             # 2. Link selection (Contextual Bandit)
             if self.bandit and len(candidates) > 1 and self.feature_extractor:
@@ -160,8 +198,17 @@ class AdaptiveCrawler(BaseCrawler):
                 for link in candidates:
                     vec = self._build_candidate_context(link, frontier_meta)
                     contexts.append(vec)
+                if self.enable_diagnostics and hasattr(self.bandit, 'score_candidates'):
+                    candidate_scores = self.bandit.score_candidates(candidates, contexts)
+                    top_score = max(candidate_scores)
+                    runner_up = sorted(candidate_scores, reverse=True)[1] if len(candidate_scores) > 1 else top_score
+                    score_summary = {
+                        'top_score': float(top_score),
+                        'score_gap': float(top_score - runner_up),
+                    }
                 best_link, best_idx = self.bandit.select_link(candidates, contexts)
                 context_used = contexts[best_idx]
+                selection_mode = 'bandit'
             else:
                 best_link = candidates[0]
                 context_used = self._build_candidate_context(best_link, frontier_meta)
@@ -216,11 +263,33 @@ class AdaptiveCrawler(BaseCrawler):
                 'anchor_text': metadata.get('anchor_text', ''),
             })
 
+            if self.enable_diagnostics:
+                self.trace[-1].update({
+                    'q_action': int(action),
+                    'q_values': q_values,
+                    'selection_mode': selection_mode,
+                    'candidate_count': len(candidates),
+                    'selected_context_norm': float(np.linalg.norm(context_used)),
+                })
+                self.trace[-1].update(score_summary)
+                self.diagnostics.append({
+                    'step': int(len(self.visited)),
+                    'url': best_link,
+                    'q_state_stats': self._vector_stats(q_state) if q_state is not None else {},
+                    'context_stats': self._vector_stats(context_used),
+                    'gnn_context_stats': self._vector_stats(context_used[:64]),
+                    'reward': float(reward),
+                    'is_relevant': bool(is_rel),
+                    'selection_mode': selection_mode,
+                    'candidate_count': int(len(candidates)),
+                })
+                self.diagnostics[-1].update(score_summary)
+
             # 4. Updates (Bandit Matrix & Q-Network iterations)
-            if self.bandit and self.feature_extractor:
+            if self.online_updates and self.bandit and self.feature_extractor:
                 self.bandit.update(best_link, context_used, reward)
                 
-            if self.qlearning_agent and q_state is not None:
+            if self.online_updates and self.qlearning_agent and q_state is not None:
                 next_q_state = self._build_q_state(current_url)
                 self.qlearning_agent.update(q_state, action, reward, next_q_state, done=False)
 
@@ -238,4 +307,5 @@ class AdaptiveCrawler(BaseCrawler):
             "crawl_time": crawl_time,
             "page_history": list(self.page_history),
             "trace": list(self.trace),
+            "diagnostics": list(self.diagnostics),
         }

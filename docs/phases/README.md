@@ -100,10 +100,14 @@ This directory contains detailed documentation for each phase of the Adaptive Q-
 - `experiments/evaluate_baseline.py`
 - `data/results/PHASE_6_RESULTS.md`
 
-### 📋 Phase 7: Optimization & Deployment
-- Hyperparameter tuning
-- Production-ready crawler
-- Documentation and paper writing
+### ✅ [Phase 7: Finalization, Diagnostics, and Project Closure](PHASE_7.md)
+**Timeline**: Week 9
+**Status**: Complete
+
+**Summary**:
+- Completed strict diagnosis, frozen-policy comparison, and final all-variant strict benchmark.
+- Selected final production policy based on strict benchmark evidence.
+- Published closure artifact at `data/results/PHASE_7_RESULTS.md`.
 
 ---
 
@@ -117,7 +121,7 @@ This directory contains detailed documentation for each phase of the Adaptive Q-
 | Phase 4 | ✅ Complete | [PHASE_4.md](PHASE_4.md) | `train_agent.py` |
 | Phase 5 | ✅ Complete | [PHASE_5.md](PHASE_5.md) | `run_hybrid_crawler.py` |
 | Phase 6 | ✅ Complete | [PHASE_6.md](PHASE_6.md) | `evaluate_baseline.py` |
-| Phase 7 | 📋 Planned | - | Final deployment scripts |
+| Phase 7 | ✅ Complete | [PHASE_7.md](PHASE_7.md) | `evaluate_baseline.py`, `create_reports.py` |
 
 ---
 

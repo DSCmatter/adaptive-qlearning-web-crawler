@@ -8,10 +8,12 @@ baselines, then writes JSON and markdown summaries to ``data/results``.
 import argparse
 import json
 import pickle
+import random
 import sys
 from pathlib import Path
 from typing import Dict, List
 
+import numpy as np
 import torch
 import yaml
 
@@ -33,7 +35,29 @@ def parse_args():
     parser.add_argument('--runs-per-seed', type=int, default=1, help='How many repeated runs per seed.')
     parser.add_argument('--max-seeds-per-topic', type=int, default=2, help='Number of seeds to use from each topic file.')
     parser.add_argument('--output-prefix', default='PHASE_6_EVAL', help='Prefix for output files.')
+    parser.add_argument('--crawler-filter', default='', help='Comma-separated crawler names to include.')
+    parser.add_argument('--seed-url', action='append', default=[], help='Explicit seed URL(s) to evaluate.')
+    parser.add_argument('--random-seed', type=int, default=42, help='Base random seed for reproducible runs.')
+    parser.add_argument('--include-run-details', action='store_true', help='Include per-run trace and diagnostics in JSON output.')
+    parser.add_argument('--enable-diagnostics', action='store_true', help='Enable adaptive crawler diagnostics in run details.')
+    parser.add_argument('--disable-online-updates', action='store_true', help='Disable Q/bandit online updates during evaluation runs.')
     return parser.parse_args()
+
+
+def set_global_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+
+def derive_run_seed(base_seed: int, crawler_name: str, seed_url: str, run_index: int) -> int:
+    key = f'{base_seed}|{crawler_name}|{seed_url}|{run_index}'
+    return base_seed + (sum(ord(ch) for ch in key) % 1000003)
+
+
+def parse_crawler_filter(raw_filter: str):
+    selected = {name.strip() for name in raw_filter.split(',') if name.strip()}
+    return selected or None
 
 
 def load_config(base_dir: Path):
@@ -140,7 +164,9 @@ def build_hybrid_factory(
     crawler_config,
     max_pages: int,
     mode: str,
-    topic_by_seed: Dict[str, TopicDefinition]
+    topic_by_seed: Dict[str, TopicDefinition],
+    enable_diagnostics: bool,
+    online_updates: bool,
 ):
     def factory(seed_url: str):
         feature_extractor = build_feature_extractor()
@@ -158,12 +184,23 @@ def build_hybrid_factory(
             timeout=crawler_config.get('timeout', 10),
             max_candidates=crawler_config.get('max_candidates', 50),
             relevance_fn=build_relevance_fn(seed_url, topic_by_seed),
+            enable_diagnostics=enable_diagnostics,
+            online_updates=online_updates,
         )
 
     return factory
 
 
-def build_specs(config, models_dir: Path, max_pages: int, topic_by_seed: Dict[str, TopicDefinition]):
+def build_specs(
+    config,
+    models_dir: Path,
+    max_pages: int,
+    topic_by_seed: Dict[str, TopicDefinition],
+    selected_crawlers,
+    random_seed: int,
+    enable_diagnostics: bool,
+    online_updates: bool,
+):
     crawler_config = config.get('crawler', {})
     specs = [
         CrawlerSpec(
@@ -174,6 +211,7 @@ def build_specs(config, models_dir: Path, max_pages: int, topic_by_seed: Dict[st
                 timeout=crawler_config.get('timeout', 10),
                 max_candidates=crawler_config.get('max_candidates', 50),
                 relevance_fn=build_relevance_fn(seed_url, topic_by_seed),
+                random_seed=random.randint(0, 2**31 - 1),
             ),
         ),
         CrawlerSpec(
@@ -201,19 +239,46 @@ def build_specs(config, models_dir: Path, max_pages: int, topic_by_seed: Dict[st
     if (models_dir / 'qlearning_agent.pt').exists():
         specs.append(CrawlerSpec(
             name='pure_q',
-            factory=build_hybrid_factory(config, models_dir, crawler_config, max_pages, mode='pure_q', topic_by_seed=topic_by_seed),
+            factory=build_hybrid_factory(
+                config,
+                models_dir,
+                crawler_config,
+                max_pages,
+                mode='pure_q',
+                topic_by_seed=topic_by_seed,
+                enable_diagnostics=enable_diagnostics,
+                online_updates=online_updates,
+            ),
         ))
 
     if (models_dir / 'bandit_arms.pkl').exists():
         specs.append(CrawlerSpec(
             name='pure_bandit',
-            factory=build_hybrid_factory(config, models_dir, crawler_config, max_pages, mode='pure_bandit', topic_by_seed=topic_by_seed),
+            factory=build_hybrid_factory(
+                config,
+                models_dir,
+                crawler_config,
+                max_pages,
+                mode='pure_bandit',
+                topic_by_seed=topic_by_seed,
+                enable_diagnostics=enable_diagnostics,
+                online_updates=online_updates,
+            ),
         ))
 
     if (models_dir / 'qlearning_agent.pt').exists() and (models_dir / 'bandit_arms.pkl').exists():
         specs.append(CrawlerSpec(
             name='hybrid_no_gnn',
-            factory=build_hybrid_factory(config, models_dir, crawler_config, max_pages, mode='no_gnn', topic_by_seed=topic_by_seed),
+            factory=build_hybrid_factory(
+                config,
+                models_dir,
+                crawler_config,
+                max_pages,
+                mode='no_gnn',
+                topic_by_seed=topic_by_seed,
+                enable_diagnostics=enable_diagnostics,
+                online_updates=online_updates,
+            ),
         ))
 
     if (
@@ -223,8 +288,20 @@ def build_specs(config, models_dir: Path, max_pages: int, topic_by_seed: Dict[st
     ):
         specs.append(CrawlerSpec(
             name='hybrid',
-            factory=build_hybrid_factory(config, models_dir, crawler_config, max_pages, mode='hybrid', topic_by_seed=topic_by_seed),
+            factory=build_hybrid_factory(
+                config,
+                models_dir,
+                crawler_config,
+                max_pages,
+                mode='hybrid',
+                topic_by_seed=topic_by_seed,
+                enable_diagnostics=enable_diagnostics,
+                online_updates=online_updates,
+            ),
         ))
+
+    if selected_crawlers:
+        specs = [spec for spec in specs if spec.name in selected_crawlers]
 
     return specs
 
@@ -234,20 +311,57 @@ def main():
     base_dir = Path(__file__).parent.parent
     models_dir = base_dir / 'data' / 'models'
     results_dir = base_dir / 'data' / 'results'
+    selected_crawlers = parse_crawler_filter(args.crawler_filter)
+    online_updates = not args.disable_online_updates
+
+    set_global_seed(args.random_seed)
 
     config = load_config(base_dir)
     seed_urls, topic_by_seed, topic_names = load_seed_configs(base_dir, max_per_topic=args.max_seeds_per_topic)
-    specs = build_specs(config, models_dir, max_pages=args.max_pages, topic_by_seed=topic_by_seed)
+
+    if args.seed_url:
+        explicit_seed_urls = list(dict.fromkeys(args.seed_url))
+        missing = [seed for seed in explicit_seed_urls if seed not in topic_by_seed]
+        if missing:
+            raise RuntimeError(
+                'Explicit seed URLs must exist in data/seeds topic files. Missing: '
+                + ', '.join(missing)
+            )
+        seed_urls = explicit_seed_urls
+        topic_names = sorted({topic_by_seed[seed].name for seed in seed_urls})
+
+    specs = build_specs(
+        config,
+        models_dir,
+        max_pages=args.max_pages,
+        topic_by_seed=topic_by_seed,
+        selected_crawlers=selected_crawlers,
+        random_seed=args.random_seed,
+        enable_diagnostics=args.enable_diagnostics,
+        online_updates=online_updates,
+    )
+
+    if selected_crawlers:
+        available = {spec.name for spec in specs}
+        unresolved = sorted(selected_crawlers - available)
+        if unresolved:
+            raise RuntimeError('Requested crawler(s) unavailable: ' + ', '.join(unresolved))
 
     if not seed_urls:
         raise RuntimeError('No evaluation seeds were found in data/seeds.')
     if not specs:
         raise RuntimeError('No crawler configurations are available for evaluation.')
 
+    def before_run(crawler_name: str, seed_url: str, run_index: int):
+        run_seed = derive_run_seed(args.random_seed, crawler_name, seed_url, run_index)
+        set_global_seed(run_seed)
+
     evaluator = CrawlerEvaluator(
         crawler_specs=specs,
         seed_urls=seed_urls,
         runs_per_seed=args.runs_per_seed,
+        before_run=before_run,
+        include_run_details=args.include_run_details,
     )
     report = evaluator.evaluate()
 
@@ -257,8 +371,9 @@ def main():
     CrawlerEvaluator.save_markdown(report, markdown_path)
 
     print('=' * 72)
-    print('Phase 6 Evaluation Summary')
+    print('Crawler Evaluation Summary')
     print('=' * 72)
+    print(f'Base random seed: {args.random_seed}')
     print(f'Seeds evaluated: {len(seed_urls)}')
     print(f'Topics:          {", ".join(topic_names)}')
     print(f'Crawler configs: {", ".join(spec.name for spec in specs)}')
