@@ -226,7 +226,8 @@ Plots are not committed in this snapshot. Reproducible result tables and raw met
 
 ## Development Note
 
-This repository was developed iteratively with AI-assisted coding support. Core claims should be evaluated through the included scripts, datasets, fixed seeds, checkpoints, and result artifacts. Users are encouraged to inspect the implementation and rerun the evaluation before relying on the results.
+> [!NOTE]
+> This repository was developed iteratively with AI-assisted coding support. Core claims should be evaluated through the included scripts, datasets, fixed seeds, checkpoints, and result artifacts. Users are encouraged to inspect the implementation and rerun the evaluation before relying on the results.
 
 ## Ethical Crawling
 
