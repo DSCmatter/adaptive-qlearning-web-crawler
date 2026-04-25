@@ -1,0 +1,24 @@
+name: adaptive-qlearning-crawler
+channels:
+  - conda-forge
+  - pytorch
+dependencies:
+  - python>=3.8
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - requests
+  - beautifulsoup4
+  - lxml
+  - networkx
+  - matplotlib
+  - seaborn
+  - pytest
+  - pytest-cov
+  - pyyaml
+  - tqdm
+  - pytorch
+  - pip:
+      - torch-geometric

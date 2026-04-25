@@ -6,6 +6,15 @@ The repository is organized for reproducible experimentation: seeded datasets, t
 
 Research paper: [`docs/paper/adaptive_qlearning_web_crawler.pdf`](docs/paper/adaptive_qlearning_web_crawler.pdf)
 
+## Paper
+
+| Field | Details |
+| --- | --- |
+| Title | Adaptive Q-Learning Web Crawler |
+| Authors | Vasant Kumar Mogia, Sujal Jariha |
+| PDF | [`docs/paper/adaptive_qlearning_web_crawler.pdf`](docs/paper/adaptive_qlearning_web_crawler.pdf) |
+| Citation metadata | [`CITATION.cff`](CITATION.cff) |
+
 ## Problem Statement
 
 Focused web crawling tries to maximize the number of topic-relevant pages discovered under a limited crawl budget. Static policies such as random crawling, best-first heuristics, or PageRank-based traversal can waste requests when topical relevance depends on page context, link anchor text, and graph structure.
@@ -73,39 +82,9 @@ The training loop also rewards useful stopping behavior and penalizes early stop
 
 ### Update Rules
 
-Q-learning uses a lightweight neural Q-network and temporal-difference updates:
+Q-learning updates the crawler after each action by comparing the reward it expected with the reward it actually received. Over repeated episodes, this teaches the agent when it is worth continuing a crawl and when stopping is better.
 
-$$
-y_t =
-\begin{cases}
-r_t, & \text{if the episode is done} \\
-r_t + \gamma \max_{a'} Q(s_{t+1}, a'), & \text{otherwise}
-\end{cases}
-$$
-
-$$
-\mathcal{L} = \left(Q(s_t, a_t) - y_t\right)^2
-$$
-
-LinUCB maintains per-link ridge-regularized linear parameters:
-
-$$
-\theta_a = A_a^{-1} b_a
-$$
-
-$$
-UCB(a) =
-\theta_a^\top x_t +
-\alpha \sqrt{x_t^\top A_a^{-1} x_t}
-$$
-
-$$
-A_a \leftarrow A_a + x_t x_t^\top
-$$
-
-$$
-b_a \leftarrow b_a + r_t x_t
-$$
+LinUCB updates its link-selection confidence after every selected link. Links with good rewards become more attractive, while uncertain links can still be explored when the model needs more evidence.
 
 The GraphSAGE encoder is pre-trained on the bootstrap graph with binary relevance labels, then frozen for active crawling to keep evaluation CPU-friendly.
 
@@ -113,44 +92,31 @@ The GraphSAGE encoder is pre-trained on the bootstrap graph with binary relevanc
 
 ```mermaid
 flowchart TD
-    Seeds[Topic Seed URLs] --> Bootstrap[Bootstrap Graph Builder]
-    Bootstrap --> Graph[(Web Graph)]
-    Graph --> GNN[GraphSAGE Encoder]
-    Labels[Train/Val/Test Labels] --> GNN
-    GNN --> Embeddings[64-dim Node Embeddings]
+    A[Topic Seeds and Labeled Data] --> B[Build Web Graph]
+    B --> C[Learn Page Embeddings with GNN]
+    C --> D[Adaptive Crawler]
+    D --> E{Q-Learning Decision}
+    E -->|Stop| H[Save Metrics and Results]
+    E -->|Continue| F[LinUCB Chooses Next Link]
+    F --> G[Visit Page and Compute Reward]
+    G --> D
 
-    Start[Seed URL] --> Crawler[Adaptive Crawler]
-    Crawler --> Extractor[Feature Extractor]
-    Graph --> Extractor
-    Embeddings --> Extractor
-    Extractor --> QState[69-dim Q-State]
-    QState --> QAgent[Q-Learning Agent]
-    QAgent --> Stop{Stop?}
-    Stop -->|Yes| Report[Run Metrics]
-    Stop -->|No| Candidates[Candidate Links]
-    Candidates --> Contexts[174-dim Link Contexts]
-    Contexts --> Bandit[LinUCB Link Selector]
-    Bandit --> Fetch[Fetch Selected Page]
-    Fetch --> Reward[Reward Function]
-    Reward --> QAgent
-    Reward --> Bandit
-    Fetch --> Crawler
-
-    Report --> Results[(JSON/Markdown Results)]
+    B --> D
+    G --> H
 ```
 
-In simple words, the crawler works like a student exploring the web with a limited notebook:
+In simple words, the system has two parts: preparation before crawling and decisions during crawling.
 
-1. It starts from a few trusted topic seed URLs.
-2. It builds a small map of pages and links, called the web graph.
-3. The GNN reads that map and gives each page a compact "meaning + position" embedding.
-4. The Q-learning agent decides the big move: keep crawling or stop.
-5. If the agent keeps crawling, the LinUCB bandit chooses the most promising next link.
-6. The crawler visits that page, checks whether it is useful for the topic, and receives a reward or penalty.
-7. The reward updates the learning components, and the next decision uses what the crawler just learned.
-8. At the end, the evaluator saves results such as harvest rate, precision, reward, and crawl time.
+1. The project starts with topic seeds and labeled URLs.
+2. Those URLs are used to build a web graph, which is a map of pages and links.
+3. The GNN studies that map and turns each page into a compact embedding.
+4. During crawling, the adaptive crawler uses the graph and embeddings as context.
+5. Q-learning makes the high-level decision: stop or continue.
+6. If it continues, LinUCB picks the best next link from the available candidates.
+7. The crawler visits the selected page and receives a reward based on relevance, novelty, depth, and cost.
+8. The reward improves future decisions, and the evaluator saves the final metrics and result files.
 
-The main idea is that Q-learning handles long-term crawl strategy, the bandit handles immediate link choice, and the GNN gives both of them graph-aware context.
+The main idea is simple: the GNN helps the crawler understand page structure, Q-learning controls the overall crawl strategy, and LinUCB chooses the next link when the crawler decides to continue.
 
 ## Repository Layout
 
@@ -250,6 +216,26 @@ Interpretation: the strongest production policy in this snapshot is `hybrid_no_g
 
 Plots are not committed in this snapshot. Reproducible result tables and raw metrics are available as JSON/Markdown under `data/results/`; model checkpoints are under `data/models/`.
 
+## Known Limitations
+
+- Live crawling results can change because websites update, block requests, go offline, or respond slowly.
+- Network conditions affect crawl time and sometimes the number of pages successfully fetched.
+- The full `hybrid` policy is still experimental in this snapshot; the current strongest policy is `hybrid_no_gnn`, with `pure_q` as a fallback.
+- The included dataset is intentionally small and student-budget friendly, so results should be treated as a reproducible project benchmark rather than a large-scale web benchmark.
+- Plots are not included in this snapshot, but raw JSON and Markdown result tables are available under `data/results/`.
+
+## Ethical Crawling
+
+This project is intended for research and educational use. The crawler uses conservative settings such as request delays, timeouts, page budgets, and candidate limits to avoid aggressive crawling.
+
+When running live crawls:
+
+- Respect website terms of service and robots policies.
+- Keep crawl budgets small unless you have permission.
+- Use the configured delay in `configs/crawler_config.yaml`.
+- Do not use the crawler for scraping private, sensitive, login-protected, or copyrighted content at scale.
+- Report experiments with the exact command, random seed, date, and network conditions when possible.
+
 ## How To Run
 
 ### 1. Create the environment
@@ -270,6 +256,13 @@ python -m venv venv
 .\venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+```
+
+Conda alternative:
+
+```bash
+conda env create -f environment.yml
+conda activate adaptive-qlearning-crawler
 ```
 
 Optional editable install:
@@ -346,6 +339,34 @@ Generated outputs:
 
 ## Reproducibility
 
+### Recommended Reviewer Path
+
+For a quick reproducibility check, run:
+
+```bash
+pip install -r requirements.txt
+python test_skeleton.py
+python evaluate.py --max-pages 10 --runs-per-seed 2 --max-seeds-per-topic 2 --output-prefix PHASE_7_FINAL_STRICT --seed 42
+```
+
+The final command writes reproducible benchmark files to `data/results/`.
+
+### Artifact Status
+
+| Artifact | Status | Location |
+| --- | --- | --- |
+| Research paper | Included | `docs/paper/adaptive_qlearning_web_crawler.pdf` |
+| Citation metadata | Included | `CITATION.cff` |
+| Python dependencies | Included | `requirements.txt` |
+| Conda environment | Included | `environment.yml` |
+| Seed dataset | Included | `data/seeds/` |
+| Labeled train/val/test splits | Included | `data/target_domains/` |
+| Bootstrap graph | Included | `data/graphs/bootstrap_graph.pkl` |
+| Model checkpoints | Included | `data/models/` |
+| Evaluation results | Included | `data/results/` |
+| Detailed docs | Included | `docs/` |
+| Plots | Not included in this snapshot | Recreate from `data/results/*.json` |
+
 ### Fixed Seeds
 
 Use `--seed 42` for `train.py` and `--seed 42` or `--random-seed 42` for evaluation. The evaluation script derives deterministic per-run seeds from the base seed, crawler name, seed URL, and run index.
@@ -366,7 +387,7 @@ $env:PYTHONHASHSEED = "42"
 
 | Artifact | Location |
 | --- | --- |
-| Dependencies | `requirements.txt` |
+| Dependencies | `requirements.txt`, `environment.yml` |
 | Configuration | `configs/crawler_config.yaml` |
 | Sample seed dataset | `data/seeds/` |
 | Labeled splits | `data/target_domains/` |
@@ -434,7 +455,6 @@ BibTeX:
   url = {https://github.com/DSCmatter/adaptive-qlearning-web-crawler},
   license = {MIT}
 }
-
 ```
 
 ## License
