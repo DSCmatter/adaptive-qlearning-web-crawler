@@ -1,91 +1,412 @@
-# Adaptive Q-Learning Web Crawler with Contextual Bandits and GNNs
+# Adaptive Q-Learning Web Crawler
 
-This project implements a **novel hybrid approach** to focused web crawling that combines three complementary techniques:
+Research implementation of a focused web crawler that combines adaptive Q-learning, LinUCB contextual bandits, and graph neural network embeddings for topic-directed crawl decisions.
 
-- **Q-Learning**: Provides high-level navigation strategy and long-term reward optimization
-- **Contextual Bandits (LinUCB)**: Handles intelligent link selection with efficient exploration-exploitation balance
-- **Graph Neural Networks (GNNs)**: Captures web graph structure for informed decision-making
+The repository is organized for reproducible experimentation: seeded datasets, train/validation/test labels, model checkpoints, evaluation scripts, phase reports, and benchmark outputs are included under versioned project folders.
 
-The crawler learns to navigate the web by selecting links that maximize topical relevance while minimizing crawl cost. It receives rewards for discovering target-domain pages and penalties for inefficient navigation, enabling adaptive link selection over time. Its performance is evaluated against static heuristic-based crawlers and traditional RL approaches to analyze efficiency, coverage, and convergence behavior.
+Research paper: [`docs/paper/adaptive_qlearning_web_crawler.pdf`](docs/paper/adaptive_qlearning_web_crawler.pdf)
 
-## Research Innovation
+## Problem Statement
 
-This project addresses limitations in existing RL-based crawlers by:
-- **Leveraging graph topology** via GNN-based node embeddings
-- **Using contextual information** for faster convergence on link selection
-- **Combining value-based and bandit approaches** for hierarchical decision-making
+Focused web crawling tries to maximize the number of topic-relevant pages discovered under a limited crawl budget. Static policies such as random crawling, best-first heuristics, or PageRank-based traversal can waste requests when topical relevance depends on page context, link anchor text, and graph structure.
 
-## Relevant Research Papers
+This project formulates crawling as a sequential decision problem:
 
-### Key Papers on RL-based Web Crawling:
-1. [**Tree-based Focused Web Crawling with Reinforcement Learning**](https://arxiv.org/abs/2112.07620) (2021) - Kontogiannis et al.
-2. [**Deep Reinforcement Learning for Web Crawling**](https://ieeexplore.ieee.org/abstract/document/9703160/) (2021) - Avrachenkov, Borkar, Patil
-3. [**Efficient Deep Web Crawling Using Reinforcement Learning**](https://link.springer.com/chapter/10.1007/978-3-642-13657-3_46) (2010) - Jiang et al. (Cited 59 times)
-4. [**Learning to Crawl Deep Web**](https://www.sciencedirect.com/science/article/pii/S0306437913000288) (2013) - Zheng et al. (Cited 71 times)
+- The crawler observes the current page, graph neighborhood, remaining budget, and historical rewards.
+- A Q-learning policy decides whether to continue or stop.
+- A contextual bandit ranks candidate outgoing links when continuing.
+- A frozen GraphSAGE encoder supplies structural page embeddings from the bootstrap web graph.
 
-## Documentation
+The research question is whether an adaptive policy can improve harvest rate and average reward over non-adaptive baselines while staying practical on CPU-only student hardware.
 
-### Quick Start Guides
-- **[STUDENT_BUDGET_GUIDE.md](docs/STUDENT_BUDGET_GUIDE.md)** - **START HERE!** Student-friendly quick start guide
-- **[WALKTHROUGH.md](docs/WALKTHROUGH.md)** - Complete implementation guide (9.5-week timeline, optimized for students)
-- **[PRACTICAL_GUIDE.md](docs/PRACTICAL_GUIDE.md)** - Simplified architecture and steps (recommended to get your way around)
+## Methodology
 
-### Technical Documentation
-- **[DESIGN.md](docs/DESIGN.md)** - Technical design document with architecture and algorithms
+### State Design
 
-### Phase-by-Phase Implementation Docs
-Detailed documentation for each completed phase with step-by-step instructions:
+The Q-learning state is a 69-dimensional vector:
 
-- **[Phase 1: Project Setup](docs/phases/PHASE_1.md)** ✅ Complete
-  - Environment setup, dependencies, project structure
-  - Core component skeletons (GNN, Bandit, Q-learning)
-  - Testing & validation (38% baseline harvest rate)
-  
-- **[Phase 2: Data Collection & Preprocessing](docs/phases/PHASE_2.md)** ✅ Complete
-  - Seed URL collection (3 topics: ML, Climate, Blockchain)
-  - Bootstrap graph crawling (60 nodes, 600 edges)
-  - Feature extraction pipeline (174-dim context vectors)
-  - Labeled training data (42 train / 9 val / 9 test)
+| Component | Dimensions | Description |
+| --- | ---: | --- |
+| GNN embedding | 64 | Frozen GraphSAGE representation for the current URL |
+| Budget remaining | 1 | Normalized remaining page budget |
+| Relevant pages found | 1 | Normalized cumulative relevant discoveries |
+| Current depth | 1 | Normalized crawl depth |
+| Average reward | 1 | Clipped running reward signal |
+| Exploration rate | 1 | Current epsilon value |
 
-- **[Phase 3: GNN Pre-training](docs/phases/PHASE_3.md)** ✅ Complete
-  - Node feature integration
-  - SAGEConv structural embeddings
-  - Offline pre-training and freezing validation
+Candidate link contexts use 174 dimensions:
 
-- **[Phase 4: Q-Learning Integration](docs/phases/PHASE_4.md)** ✅ Complete
-  - Offline simulation environment setup
-  - Joint Q-Network and LinUCB Bandit optimization
-  - High coverage metric evaluation testing
+| Component | Dimensions | Description |
+| --- | ---: | --- |
+| GNN embedding | 64 | Structural embedding |
+| URL features | 20 | Depth, domain, query, file type, path markers |
+| Content features | 50 | TF-IDF and HTML/content statistics |
+| Anchor features | 30 | Anchor text statistics and topic keyword indicators |
+| Graph features | 10 | In-degree, out-degree, PageRank, hub/leaf indicators |
 
-- **[Phase 5: Hybrid System Integration](docs/phases/PHASE_5.md)** ✅ Complete
-  - Integration of Q-Agent, LinUCB, and frozen GraphSAGE.
-  - Live HTTP web crawling tests on standard seed targets.
+### Action Design
 
-- **[Phase 6: Evaluation & Baselines](docs/phases/PHASE_6.md)** ✅ Complete
-  - Baseline comparisons and strict topic-aware evaluation across 3 domains
+The Q-agent uses two high-level actions:
 
-- **[Phase 7: Finalization, Diagnostics, and Project Closure](docs/phases/PHASE_7.md)** ✅ Complete
-  - Strict diagnosis and final benchmark completed with documented final policy selection
+| Action | Meaning |
+| --- | --- |
+| `0` | Stop the crawl episode |
+| `1` | Continue crawling and delegate link choice to LinUCB |
 
-This project is optimized for broke students:
-- **$0.10 Total Cost** (just electricity)
-- **No GPU Required** (CPU-only works great)
-- **No Cloud Costs** (runs on your laptop)
-- **3-4 Days Training** (run overnight)
-- **8GB RAM Sufficient** (works on old laptops)
-- **60-70% Harvest Rate** (publishable results!)
+When action `1` is selected, LinUCB scores each candidate link using its 174-dimensional context and chooses the maximum upper-confidence score.
 
-## Quick Start
+### Reward Design
+
+Rewards are computed from topical relevance, novelty, fetch cost, depth, and duplicate penalties:
+
+| Event | Reward effect |
+| --- | ---: |
+| Highly relevant page | `+10` |
+| Moderately relevant page | `+5` |
+| Low/irrelevant page | `0` to `-2` |
+| New domain | `+2` |
+| Duplicate page | `-5` |
+| Fetch time | `-0.1 * fetch_time` |
+| Crawl depth | `-0.1 * min(depth, 10)` |
+
+The training loop also rewards useful stopping behavior and penalizes early stops or dead ends.
+
+### Update Rules
+
+Q-learning uses a lightweight neural Q-network and temporal-difference updates:
+
+```text
+target = r_t                                      if done
+target = r_t + gamma * max_a Q(s_{t+1}, a)       otherwise
+loss   = (Q(s_t, a_t) - target)^2
+```
+
+LinUCB maintains per-link ridge-regularized linear parameters:
+
+```text
+theta_a = inverse(A_a) b_a
+score_a = theta_a^T x_t + alpha * sqrt(x_t^T inverse(A_a) x_t)
+A_a     = A_a + x_t x_t^T
+b_a     = b_a + r_t x_t
+```
+
+The GraphSAGE encoder is pre-trained on the bootstrap graph with binary relevance labels, then frozen for active crawling to keep evaluation CPU-friendly.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    Seeds[Topic Seed URLs] --> Bootstrap[Bootstrap Graph Builder]
+    Bootstrap --> Graph[(Web Graph)]
+    Graph --> GNN[GraphSAGE Encoder]
+    Labels[Train/Val/Test Labels] --> GNN
+    GNN --> Embeddings[64-dim Node Embeddings]
+
+    Start[Seed URL] --> Crawler[Adaptive Crawler]
+    Crawler --> Extractor[Feature Extractor]
+    Graph --> Extractor
+    Embeddings --> Extractor
+    Extractor --> QState[69-dim Q-State]
+    QState --> QAgent[Q-Learning Agent]
+    QAgent --> Stop{Stop?}
+    Stop -->|Yes| Report[Run Metrics]
+    Stop -->|No| Candidates[Candidate Links]
+    Candidates --> Contexts[174-dim Link Contexts]
+    Contexts --> Bandit[LinUCB Link Selector]
+    Bandit --> Fetch[Fetch Selected Page]
+    Fetch --> Reward[Reward Function]
+    Reward --> QAgent
+    Reward --> Bandit
+    Fetch --> Crawler
+
+    Report --> Results[(JSON/Markdown Results)]
+```
+
+In simple words, the crawler works like a student exploring the web with a limited notebook:
+
+1. It starts from a few trusted topic seed URLs.
+2. It builds a small map of pages and links, called the web graph.
+3. The GNN reads that map and gives each page a compact "meaning + position" embedding.
+4. The Q-learning agent decides the big move: keep crawling or stop.
+5. If the agent keeps crawling, the LinUCB bandit chooses the most promising next link.
+6. The crawler visits that page, checks whether it is useful for the topic, and receives a reward or penalty.
+7. The reward updates the learning components, and the next decision uses what the crawler just learned.
+8. At the end, the evaluator saves results such as harvest rate, precision, reward, and crawl time.
+
+The main idea is that Q-learning handles long-term crawl strategy, the bandit handles immediate link choice, and the GNN gives both of them graph-aware context.
+
+## Repository Layout
+
+| Path | Purpose |
+| --- | --- |
+| `src/` | Core crawler, models, graph utilities, reward and evaluation code |
+| `experiments/` | Bootstrap, training, live crawl, and evaluation scripts |
+| `configs/crawler_config.yaml` | Main experiment configuration and hyperparameters |
+| `data/seeds/` | Topic seed URLs for ML, climate, and blockchain domains |
+| `data/target_domains/` | Labeled URL dataset and train/val/test splits |
+| `data/graphs/` | Bootstrap graph artifact |
+| `data/models/` | GNN, Q-learning, and bandit checkpoints |
+| `data/results/` | Evaluation JSON/Markdown reports |
+| `docs/` | Design notes, walkthroughs, phase reports, and detailed explanations |
+| `docs/paper/` | Research paper PDF |
+| `train.py` | Reproducible root training wrapper |
+| `evaluate.py` | Reproducible root evaluation wrapper |
+
+## Experimental Setup
+
+### Datasets
+
+The included sample dataset targets three topical domains:
+
+| Topic | Seed file | Label data |
+| --- | --- | --- |
+| Machine learning | `data/seeds/ml_seeds.json` | `data/target_domains/*.csv` |
+| Climate | `data/seeds/climate_seeds.json` | `data/target_domains/*.csv` |
+| Blockchain | `data/seeds/blockchain_seeds.json` | `data/target_domains/*.csv` |
+
+Current labeled split:
+
+| Split | File |
+| --- | --- |
+| Train | `data/target_domains/train_labeled.csv` |
+| Validation | `data/target_domains/val_labeled.csv` |
+| Test | `data/target_domains/test_labeled.csv` |
+
+To regenerate the bootstrap graph and labeling template:
 
 ```bash
-# 1. Clone repo
-git clone https://github.com/yourusername/adaptive-qlearning-web-crawler
-cd adaptive-qlearning-web-crawler
+python experiments/bootstrap_graph.py
+python experiments/create_labeled_data.py
+```
 
-# 2. Create virtual environment
+After manual labeling, rebuild train/validation/test splits:
+
+```bash
+python experiments/create_labeled_data.py --split
+```
+
+### Metrics
+
+Evaluation reports the following metrics:
+
+| Metric | Definition |
+| --- | --- |
+| Harvest rate | Relevant pages found / total pages crawled |
+| Precision@10 | Relevant pages in the first 10 crawled pages |
+| Precision@20 | Relevant pages in the first 20 crawled pages |
+| Average reward | Mean reward per crawled page |
+| Crawl time | Wall-clock runtime per crawler run |
+
+### Baselines
+
+The evaluator compares:
+
+- `random`
+- `best_first`
+- `pagerank`
+- `pure_q`
+- `pure_bandit`
+- `hybrid_no_gnn`
+- `hybrid`
+
+## Results Summary
+
+Canonical strict benchmark: `data/results/PHASE_7_FINAL_STRICT.md`
+
+Command used:
+
+```bash
+python experiments/evaluate_baseline.py --max-pages 10 --runs-per-seed 2 --max-seeds-per-topic 2 --random-seed 42 --output-prefix PHASE_7_FINAL_STRICT
+```
+
+| Crawler | Harvest Rate | P@10 | P@20 | Avg Reward | Crawl Time (s) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| random | 0.108 +/- 0.029 | 0.108 | 0.108 | 0.55 | 21.84 |
+| best_first | 0.133 +/- 0.078 | 0.133 | 0.133 | 0.84 | 22.50 |
+| pagerank | 0.100 +/- 0.000 | 0.100 | 0.100 | 0.48 | 19.06 |
+| pure_q | 0.958 +/- 0.144 | 0.958 | 0.958 | 11.21 | 2.77 |
+| pure_bandit | 0.100 +/- 0.000 | 0.100 | 0.100 | 0.45 | 27.29 |
+| hybrid_no_gnn | 1.000 +/- 0.000 | 1.000 | 1.000 | 11.72 | 2.56 |
+| hybrid | 0.117 +/- 0.044 | 0.117 | 0.117 | 0.69 | 25.65 |
+
+Interpretation: the strongest production policy in this snapshot is `hybrid_no_gnn`, with `pure_q` as a fallback. The full `hybrid` path remains experimental; diagnostics in `data/results/PHASE_7_DIAG_STRICT.md` show second-step LinUCB selections repeatedly choosing irrelevant pages.
+
+Plots are not committed in this snapshot. Reproducible result tables and raw metrics are available as JSON/Markdown under `data/results/`; model checkpoints are under `data/models/`.
+
+## How To Run
+
+### 1. Create the environment
+
+Linux/macOS:
+
+```bash
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 3. Install dependencies (CPU-only, ~2GB)
+source venv/bin/activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
+
+Windows PowerShell:
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Optional editable install:
+
+```bash
+pip install -e .
+```
+
+### 2. Run a smoke check
+
+```bash
+python test_skeleton.py
+```
+
+### 3. Train the models
+
+Run the complete root wrapper:
+
+```bash
+python train.py --seed 42
+```
+
+Or run each stage explicitly:
+
+```bash
+python experiments/train_gnn.py
+python experiments/train_agent.py
+```
+
+Expected checkpoint outputs:
+
+| File | Description |
+| --- | --- |
+| `data/models/gnn_encoder_best.pt` | Best validation GNN encoder |
+| `data/models/gnn_encoder_frozen.pt` | Frozen GNN encoder for crawling |
+| `data/models/qlearning_agent.pt` | Trained Q-network |
+| `data/models/bandit_arms.pkl` | LinUCB arm state |
+
+### 4. Run the live adaptive crawler demo
+
+Preserved from the previous `DEMO.md`:
+
+```bash
+python experiments/run_hybrid_crawler.py
+```
+
+If model files are missing, run:
+
+```bash
+python experiments/train_gnn.py
+python experiments/train_agent.py
+```
+
+### 5. Run baseline comparison
+
+Short demo evaluation:
+
+```bash
+python evaluate.py --max-pages 20 --runs-per-seed 1 --output-prefix DEMO_EVAL --seed 42
+```
+
+Equivalent direct command:
+
+```bash
+python experiments/evaluate_baseline.py --max-pages 20 --runs-per-seed 1 --output-prefix DEMO_EVAL --random-seed 42
+```
+
+Generated outputs:
+
+| File | Description |
+| --- | --- |
+| `data/results/DEMO_EVAL.json` | Raw evaluation report |
+| `data/results/DEMO_EVAL.md` | Markdown summary table |
+
+## Reproducibility
+
+### Fixed Seeds
+
+Use `--seed 42` for `train.py` and `--seed 42` or `--random-seed 42` for evaluation. The evaluation script derives deterministic per-run seeds from the base seed, crawler name, seed URL, and run index.
+
+For stricter deterministic runs, also set:
+
+```bash
+export PYTHONHASHSEED=42
+```
+
+PowerShell:
+
+```powershell
+$env:PYTHONHASHSEED = "42"
+```
+
+### Required Artifacts
+
+| Artifact | Location |
+| --- | --- |
+| Dependencies | `requirements.txt` |
+| Configuration | `configs/crawler_config.yaml` |
+| Sample seed dataset | `data/seeds/` |
+| Labeled splits | `data/target_domains/` |
+| Graph artifact | `data/graphs/bootstrap_graph.pkl` |
+| Training scripts | `train.py`, `experiments/train_gnn.py`, `experiments/train_agent.py` |
+| Evaluation scripts | `evaluate.py`, `experiments/evaluate_baseline.py` |
+| Results folder | `data/results/` |
+| Checkpoints | `data/models/` |
+| Documentation | `docs/` |
+| Paper PDF | `docs/paper/adaptive_qlearning_web_crawler.pdf` |
+
+### Reproduce the Final Strict Benchmark
+
+```bash
+python evaluate.py --max-pages 10 --runs-per-seed 2 --max-seeds-per-topic 2 --output-prefix PHASE_7_FINAL_STRICT --seed 42
+```
+
+Compare generated outputs against:
+
+- `data/results/PHASE_7_FINAL_STRICT.json`
+- `data/results/PHASE_7_FINAL_STRICT.md`
+
+Network conditions can affect live crawling results. For stable reporting, preserve raw JSON outputs and include the exact command, seed, date, and network environment in any paper or report.
+
+## Paper And Documentation
+
+- Paper PDF: [`docs/paper/adaptive_qlearning_web_crawler.pdf`](docs/paper/adaptive_qlearning_web_crawler.pdf)
+- Technical design: `docs/DESIGN.md`
+- Implementation walkthrough: `docs/WALKTHROUGH.md`
+- Practical guide: `docs/PRACTICAL_GUIDE.md`
+- Phase documentation: `docs/phases/`
+- Generated phase reports: `docs/reports/`
+
+Relevant background papers:
+
+1. Tree-based Focused Web Crawling with Reinforcement Learning, Kontogiannis et al., 2021.
+2. Deep Reinforcement Learning for Web Crawling, Avrachenkov, Borkar, and Patil, 2021.
+3. Efficient Deep Web Crawling Using Reinforcement Learning, Jiang et al., 2010.
+4. Learning to Crawl Deep Web, Zheng et al., 2013.
+
+## Citation
+
+Citation metadata is provided in `CITATION.cff`.
+
+BibTeX:
+
+```bibtex
+@software{mogia_adaptive_qlearning_web_crawler_2026,
+  author = {Mogia, Vasant Kumar},
+  title = {Adaptive Q-Learning Web Crawler},
+  year = {2026},
+  version = {0.1.0},
+  url = {https://github.com/DSCmatter/adaptive-qlearning-web-crawler},
+  license = {MIT}
+}
+```
+
+## License
+
+This project is released under the MIT License. See `LICENSE`.

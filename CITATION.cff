@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "Adaptive Q-Learning Web Crawler"
+version: "0.1.0"
+date-released: "2026-04-04"
+type: software
+license: MIT
+url: "https://github.com/DSCmatter/adaptive-qlearning-web-crawler"
+authors:
+  - family-names: "Mogia"
+    given-names: "Vasant"
+    family-name: "Jariha"
+    given-names: "Sujal"
+repository-code: "https://github.com/DSCmatter/adaptive-qlearning-web-crawler"
+abstract: "A focused web crawler research implementation combining adaptive Q-learning, LinUCB contextual bandits, and graph neural network embeddings for topic-directed crawling."
