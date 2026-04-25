@@ -224,6 +224,10 @@ Plots are not committed in this snapshot. Reproducible result tables and raw met
 - The included dataset is intentionally small and student-budget friendly, so results should be treated as a reproducible project benchmark rather than a large-scale web benchmark.
 - Plots are not included in this snapshot, but raw JSON and Markdown result tables are available under `data/results/`.
 
+## Development Note
+
+This repository was developed iteratively with AI-assisted coding support. Core claims should be evaluated through the included scripts, datasets, fixed seeds, checkpoints, and result artifacts. Users are encouraged to inspect the implementation and rerun the evaluation before relying on the results.
+
 ## Ethical Crawling
 
 This project is intended for research and educational use. The crawler uses conservative settings such as request delays, timeouts, page budgets, and candidate limits to avoid aggressive crawling.
