@@ -8,8 +8,8 @@ license: MIT
 url: "https://github.com/DSCmatter/adaptive-qlearning-web-crawler"
 authors:
   - family-names: "Mogia"
-    given-names: "Vasant"
-    family-name: "Jariha"
+    given-names: "Vasant Kumar"
+  - family-names: "Jariha"
     given-names: "Sujal"
 repository-code: "https://github.com/DSCmatter/adaptive-qlearning-web-crawler"
 abstract: "A focused web crawler research implementation combining adaptive Q-learning, LinUCB contextual bandits, and graph neural network embeddings for topic-directed crawling."

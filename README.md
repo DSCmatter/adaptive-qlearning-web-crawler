@@ -75,20 +75,37 @@ The training loop also rewards useful stopping behavior and penalizes early stop
 
 Q-learning uses a lightweight neural Q-network and temporal-difference updates:
 
-```text
-target = r_t                                      if done
-target = r_t + gamma * max_a Q(s_{t+1}, a)       otherwise
-loss   = (Q(s_t, a_t) - target)^2
-```
+$$
+y_t =
+\begin{cases}
+r_t, & \text{if the episode is done} \\
+r_t + \gamma \max_{a'} Q(s_{t+1}, a'), & \text{otherwise}
+\end{cases}
+$$
+
+$$
+\mathcal{L} = \left(Q(s_t, a_t) - y_t\right)^2
+$$
 
 LinUCB maintains per-link ridge-regularized linear parameters:
 
-```text
-theta_a = inverse(A_a) b_a
-score_a = theta_a^T x_t + alpha * sqrt(x_t^T inverse(A_a) x_t)
-A_a     = A_a + x_t x_t^T
-b_a     = b_a + r_t x_t
-```
+$$
+\theta_a = A_a^{-1} b_a
+$$
+
+$$
+\operatorname{score}(a) =
+\theta_a^\top x_t +
+\alpha \sqrt{x_t^\top A_a^{-1} x_t}
+$$
+
+$$
+A_a \leftarrow A_a + x_t x_t^\top
+$$
+
+$$
+b_a \leftarrow b_a + r_t x_t
+$$
 
 The GraphSAGE encoder is pre-trained on the bootstrap graph with binary relevance labels, then frozen for active crawling to keep evaluation CPU-friendly.
 
@@ -383,6 +400,18 @@ Network conditions can affect live crawling results. For stable reporting, prese
 - Phase documentation: `docs/phases/`
 - Generated phase reports: `docs/reports/`
 
+Phase-level documentation is useful for understanding how the project was built and validated:
+
+| Phase | Document | Focus |
+| --- | --- | --- |
+| 1 | [`PHASE_1.md`](docs/phases/PHASE_1.md) | Project setup, dependencies, baseline skeleton |
+| 2 | [`PHASE_2.md`](docs/phases/PHASE_2.md) | Seed data, bootstrap graph, labeling pipeline |
+| 3 | [`PHASE_3.md`](docs/phases/PHASE_3.md) | GNN pre-training and frozen encoder |
+| 4 | [`PHASE_4.md`](docs/phases/PHASE_4.md) | Q-learning and LinUCB training integration |
+| 5 | [`PHASE_5.md`](docs/phases/PHASE_5.md) | Live hybrid crawler integration |
+| 6 | [`PHASE_6.md`](docs/phases/PHASE_6.md) | Baseline evaluation protocol |
+| 7 | [`PHASE_7.md`](docs/phases/PHASE_7.md) | Diagnostics, final benchmark, policy selection |
+
 Relevant background papers:
 
 1. Tree-based Focused Web Crawling with Reinforcement Learning, Kontogiannis et al., 2021.
@@ -397,14 +426,15 @@ Citation metadata is provided in `CITATION.cff`.
 BibTeX:
 
 ```bibtex
-@software{mogia_adaptive_qlearning_web_crawler_2026,
-  author = {Mogia, Vasant Kumar},
+@software{adaptive_qlearning_web_crawler_2026,
+  author = {Mogia, Vasant Kumar and Jariha, Sujal},
   title = {Adaptive Q-Learning Web Crawler},
   year = {2026},
   version = {0.1.0},
   url = {https://github.com/DSCmatter/adaptive-qlearning-web-crawler},
   license = {MIT}
 }
+
 ```
 
 ## License
