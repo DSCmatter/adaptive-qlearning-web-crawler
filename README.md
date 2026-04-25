@@ -6,6 +6,9 @@ The repository is organized for reproducible experimentation: seeded datasets, t
 
 Research paper: [`docs/paper/adaptive_qlearning_web_crawler.pdf`](docs/paper/adaptive_qlearning_web_crawler.pdf)
 
+> [!NOTE]
+> This repository was developed iteratively with AI-assisted coding support. Core claims should be evaluated through the included scripts, datasets, fixed seeds, checkpoints, and result artifacts. Users are encouraged to inspect the implementation and rerun the evaluation before relying on the results.
+
 ## Paper
 
 | Field | Details |
@@ -223,11 +226,6 @@ Plots are not committed in this snapshot. Reproducible result tables and raw met
 - The full `hybrid` policy is still experimental in this snapshot; the current strongest policy is `hybrid_no_gnn`, with `pure_q` as a fallback.
 - The included dataset is intentionally small and student-budget friendly, so results should be treated as a reproducible project benchmark rather than a large-scale web benchmark.
 - Plots are not included in this snapshot, but raw JSON and Markdown result tables are available under `data/results/`.
-
-## Development Note
-
-> [!NOTE]
-> This repository was developed iteratively with AI-assisted coding support. Core claims should be evaluated through the included scripts, datasets, fixed seeds, checkpoints, and result artifacts. Users are encouraged to inspect the implementation and rerun the evaluation before relying on the results.
 
 ## Ethical Crawling
 
