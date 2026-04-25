@@ -94,7 +94,7 @@ $$
 $$
 
 $$
-\operatorname{score}(a) =
+UCB(a) =
 \theta_a^\top x_t +
 \alpha \sqrt{x_t^\top A_a^{-1} x_t}
 $$
