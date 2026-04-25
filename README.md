@@ -6,9 +6,6 @@ The repository is organized for reproducible experimentation: seeded datasets, t
 
 Research paper: [`docs/paper/adaptive_qlearning_web_crawler.pdf`](docs/paper/adaptive_qlearning_web_crawler.pdf)
 
-> [!NOTE]
-> This repository was developed iteratively with AI-assisted coding support. Core claims should be evaluated through the included scripts, datasets, fixed seeds, checkpoints, and result artifacts. Users are encouraged to inspect the implementation and rerun the evaluation before relying on the results.
-
 ## Paper
 
 | Field | Details |
